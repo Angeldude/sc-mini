@@ -8,6 +8,9 @@ import Data.Char
 import Data.List
 import Text.ParserCombinators.ReadP
 
+readProgram :: String -> Program
+readProgram = read
+
 -- READ/SHOW
 readVar1 :: ReadS Name
 readVar1 i = concat [lex s1 | (",", s1) <- lex i]
@@ -16,7 +19,7 @@ instance Read Expr where
   readsPrec _ s = readsExpr s
 
 instance Read Program where
-  readsPrec _ s = readProgram s
+  readsPrec _ s = readP s
 
 readExpr :: ReadP Expr
 readExpr = readS_to_P readsExpr
@@ -58,7 +61,7 @@ readGDef i = [ (GDef n p vs body, s6) |
   (";", s6) <- lex s5
   ]
 
-readProgram s = [readP1 (Program [] []) s]
+readP s = [readP1 (Program [] []) s]
 
 readP1 p@(Program fs gs) s = next (readFDef s) (readGDef s) where
   next [(f, s1)] _ = readP1 (Program (fs++[f]) gs) s1

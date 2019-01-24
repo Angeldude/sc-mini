@@ -1,4 +1,8 @@
+{-# LANGUAGE QuasiQuotes #-}
+
 module Demonstration where
+
+import Text.RawString.QQ
 
 import Data
 import DataUtil
@@ -15,75 +19,78 @@ import Prototype
 import Deforester
 
 prog1 :: Program
-prog1 = read
-  " gAdd(Z(), y) = y;\
-  \ gAdd(S(x), y) = S(gAdd(x, y));\
-  \ gMult(Z(), y) = Z();\
-  \ gMult(S(x), y) = gAdd(y, gMult(x, y));\
-  \ fSqr(x) = gMult(x, x); \
-  \ gEven(Z()) = True();\
-  \ gEven(S(x)) = gOdd(x);\
-  \ gOdd(Z()) = False();\
-  \ gOdd(S(x)) = gEven(x);\
-  \ gAdd1(Z(), y) = y; \
-  \ gAdd1(S(x), y) = gAdd1(x, S(y));"
+prog1 = readProgram [r|
+  gAdd(Z(), y) = y;
+  gAdd(S(x), y) = S(gAdd(x, y));
+  gMult(Z(), y) = Z();
+  gMult(S(x), y) = gAdd(y, gMult(x, y));
+  fSqr(x) = gMult(x, x);
+  gEven(Z()) = True();
+  gEven(S(x)) = gOdd(x);
+  gOdd(Z()) = False();
+  gOdd(S(x)) = gEven(x);
+  gAdd1(Z(), y) = y;
+  gAdd1(S(x), y) = gAdd1(x, S(y));
+|]
 
 prog2 :: Program
-prog2 = read
-  " gEqSymb(A(), y) = gEqA(y);\
-  \ gEqSymb(B(), y) = gEqB(y);\
-  \ gEqA(A()) = True();  gEqA(B()) = False();\
-  \ gEqB(A()) = False(); gEqB(B()) = True();\
-  \ gIf(True(), x, y) = x;\
-  \ gIf(False(), x, y) = y;\
-  \ fMatch(p, s) = gM(p, s, p, s);\
-  \ gM(Nil(), ss, op, os) = True();\
-  \ gM(Cons(p, pp), ss, op, os) = gX(ss, p, pp, op, os);\
-  \ gX(Nil(), p, pp,  op, os) = False();\
-  \ gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));\
-  \ gN(Nil(), op) = False(); \
-  \ gN(Cons(s, ss), op) = gM(op, ss, op, ss);"
+prog2 = readProgram [r|
+  gEqSymb(A(), y) = gEqA(y);
+  gEqSymb(B(), y) = gEqB(y);
+  gEqA(A()) = True();  gEqA(B()) = False();
+  gEqB(A()) = False(); gEqB(B()) = True();
+  gIf(True(), x, y) = x;
+  gIf(False(), x, y) = y;
+  fMatch(p, s) = gM(p, s, p, s);
+  gM(Nil(), ss, op, os) = True();
+  gM(Cons(p, pp), ss, op, os) = gX(ss, p, pp, op, os);
+  gX(Nil(), p, pp,  op, os) = False();
+  gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));
+  gN(Nil(), op) = False();
+  gN(Cons(s, ss), op) = gM(op, ss, op, ss);
+|]
 
 -- more clear KMP test
 prog2a :: Program
-prog2a = read
-  " gEqSymb(A(), y) = gEqA(y);\
-  \ gEqSymb(B(), y) = gEqB(y);\
-  \ gEqA(A()) = True();  gEqA(B()) = False();\
-  \ gEqB(A()) = False(); gEqB(B()) = True();\
-  \ gIf(True(), x, y) = x;\
-  \ gIf(False(), x, y) = y;\
-  \ fMatch(p, s) = gM(p, s, p, s);\
-  \ gM(Nil(), ss, op, os) = True();\
-  \ gM(Cons(p, pp), ss, op, os) = gX(ss, p, pp, op, os);\
-  \ gX(Nil(), p, pp,  op, os) = False();\
-  \ gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));\
-  \ gN(Nil(), op) = False(); \
-  \ gN(Cons(s, ss), op) = gM(op, ss, op, ss);"
-
+prog2a = readProgram [r|
+  gEqSymb(A(), y) = gEqA(y);
+  gEqSymb(B(), y) = gEqB(y);
+  gEqA(A()) = True();  gEqA(B()) = False();
+  gEqB(A()) = False(); gEqB(B()) = True();
+  gIf(True(), x, y) = x;
+  gIf(False(), x, y) = y;
+  fMatch(p, s) = gM(p, s, p, s);
+  gM(Nil(), ss, op, os) = True();
+  gM(Cons(p, pp), ss, op, os) = gX(ss, p, pp, op, os);
+  gX(Nil(), p, pp,  op, os) = False();
+  gX(Cons(s, ss), p, pp,  op, os) = gIf(gEqSymb(p, s), gM(pp, ss, op, os), gN(os, op));
+  gN(Nil(), op) = False();
+  gN(Cons(s, ss), op) = gM(op, ss, op, ss);
+|]
 
 prog3 :: Program
-prog3 = read
-  " gAdd(Z(), y) = y;\
-  \ gAdd(S(x), y) = S(gAdd(x, y));\
-  \ gDouble(Z()) = Z(); \
-  \ gDouble(S(x)) = S(S(gDouble(x))); \
-  \ gHalf(Z()) = Z(); \
-  \ gHalf(S(x)) = gHalf1(x); \
-  \ gHalf1(Z()) = Z(); \
-  \ gHalf1(S(x)) = S(gHalf(x)); \
-  \ gEq(Z(), y) = gEqZ(y); \
-  \ gEq(S(x), y) = gEqS(y, x); \
-  \ gEqZ(Z()) = True(); \
-  \ gEqZ(S(x)) = False(); \
-  \ gEqS(Z(), x) = False(); \
-  \ gEqS(S(y), x) = gEq(x, y);"
-
+prog3 = readProgram [r|
+  gAdd(Z(), y) = y;
+  gAdd(S(x), y) = S(gAdd(x, y));
+  gDouble(Z()) = Z();
+  gDouble(S(x)) = S(S(gDouble(x)));
+  gHalf(Z()) = Z();
+  gHalf(S(x)) = gHalf1(x);
+  gHalf1(Z()) = Z();
+  gHalf1(S(x)) = S(gHalf(x));
+  gEq(Z(), y) = gEqZ(y);
+  gEq(S(x), y) = gEqS(y, x);
+  gEqZ(Z()) = True();
+  gEqZ(S(x)) = False();
+  gEqS(Z(), x) = False();
+  gEqS(S(y), x) = gEq(x, y);
+|]
 
 prog4 :: Program
-prog4 = read
-  " fInf() = S(fInf()); \
-  \ fB(x) = fB(S(x));"
+prog4 = readProgram [r|
+  fInf() = S(fInf());
+  fB(x) = fB(S(x));
+|]
 
 -- counting steps of interpreter
 demo01 =
